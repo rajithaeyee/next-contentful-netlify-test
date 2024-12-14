@@ -1,23 +1,23 @@
-FROM node:18 as builder
+FROM node:18-alpine AS builder
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
+RUN apk add --no-cache libc6-compat
 
-COPY package*.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+
+RUN npm ci
 
 COPY . .
 
 ARG CONTENTFUL_SPACE_ID
 ENV CONTENTFUL_SPACE_ID=${CONTENTFUL_SPACE_ID}
-
 ARG CONTENTFUL_ACCESS_TOKEN
 ENV CONTENTFUL_ACCESS_TOKEN=${CONTENTFUL_ACCESS_TOKEN}
 
 RUN npm run build
 
-
-FROM nginx:stable-alpine as runner
+FROM node:18-alpine AS runner
 
 WORKDIR /app
 
@@ -25,12 +25,15 @@ ENV NODE_ENV=production
 ENV CONTENTFUL_SPACE_ID=${CONTENTFUL_SPACE_ID}
 ENV CONTENTFUL_ACCESS_TOKEN=${CONTENTFUL_ACCESS_TOKEN}
 
-# COPY nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-COPY --from=builder /usr/src/app/.next/standalone ./
-COPY --from=builder /usr/src/app/.next/static ./.next/static
-COPY --from=builder /usr/src/app/public ./public
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
-EXPOSE 80
+USER nextjs
 
-CMD ["sh", "-c", "nginx && node server.js"]
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "server.js"]
