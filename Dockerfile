@@ -2,6 +2,7 @@ FROM node:18 as builder
 
 WORKDIR /usr/src/app
 
+
 COPY package*.json ./
 RUN npm install
 
@@ -15,12 +16,21 @@ ENV CONTENTFUL_ACCESS_TOKEN=${CONTENTFUL_ACCESS_TOKEN}
 
 RUN npm run build
 
-RUN npm run export
 
-FROM nginx:stable-alpine
+FROM nginx:stable-alpine as runner
 
-COPY --from=builder /usr/src/app/out /usr/share/nginx/html
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV CONTENTFUL_SPACE_ID=${CONTENTFUL_SPACE_ID}
+ENV CONTENTFUL_ACCESS_TOKEN=${CONTENTFUL_ACCESS_TOKEN}
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+COPY --from=builder /usr/src/app/.next/standalone ./
+COPY --from=builder /usr/src/app/.next/static ./.next/static
+COPY --from=builder /usr/src/app/public ./public
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["sh", "-c", "nginx && node server.js"]
