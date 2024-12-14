@@ -25,7 +25,7 @@ ENV NODE_ENV=production
 ENV CONTENTFUL_SPACE_ID=${CONTENTFUL_SPACE_ID}
 ENV CONTENTFUL_ACCESS_TOKEN=${CONTENTFUL_ACCESS_TOKEN}
 
-COPY nginx.conf /etc/nginx/nginx.conf
+# COPY nginx.conf /etc/nginx/nginx.conf
 
 COPY --from=builder /usr/src/app/.next/standalone ./
 COPY --from=builder /usr/src/app/.next/static ./.next/static
