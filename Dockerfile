@@ -5,7 +5,6 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 
-
 COPY . .
 
 ARG CONTENTFUL_SPACE_ID
@@ -14,8 +13,9 @@ ENV CONTENTFUL_SPACE_ID=${CONTENTFUL_SPACE_ID}
 ARG CONTENTFUL_ACCESS_TOKEN
 ENV CONTENTFUL_ACCESS_TOKEN=${CONTENTFUL_ACCESS_TOKEN}
 
-
 RUN npm run build
+
+RUN npm run export
 
 FROM nginx:stable-alpine
 
