@@ -1,5 +1,5 @@
 environment:
-  - PORT=3000
+  - PORT=80
   - NODE_ENV=production
   - CONTENTFUL_SPACE_ID
   - CONTENTFUL_ACCESS_TOKEN
@@ -8,4 +8,4 @@ services:
   web:
     domain: ${HOST}
     build: .
-    port: 3000
+    port: 80
