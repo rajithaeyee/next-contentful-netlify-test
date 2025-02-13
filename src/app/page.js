@@ -4,7 +4,6 @@ import { getAllArticles } from "./lib/api";
 
 export default async function Home() {
   const articles = await getAllArticles();
-  console.log(articles);
   return (
     <main>
             <header className="bg-gradient-to-r from-[#022630] to-[#11495A] text-white py-20">
@@ -33,6 +32,7 @@ export default async function Home() {
               height={590}
               width={722}
               slug={article.fields.slug}
+              alt={article.fields.slug}
             />
             <div className="p-6">
               {/* Title */}
